@@ -5,27 +5,29 @@ example, acceleration is constant as only gravity is accounted for, but can
 be varied as a function of force and mass.
 '''
 
+from vector3d import Vector3D
 
 # initial params
-position = 9.81 # [m]
-velocity = 0.0 # [m/s]
-acceleration = -9.81 # [m/s^2]
-timestep = 0.01 # [ms]
-duration = 1.0 # [s]
+timestep     = 0.01 # [ms]
+duration     = 2.0 # [s]
+
+position     = Vector3D([0.0, 9.8, 0.0])
+velocity     = Vector3D([0.0, 0.0, 0.0])
+acceleration = Vector3D([0.0,-9.8, 0.0])
 
 
 
 class State(object):
 
-    def __init__(self, x = 0, v = 0):
-        self.x = x  # position
-        self.v = v  # velocity
+    def __init__(self, x = 0.0, v = 0.0):
+        self.p  = x  # position
+        self.v  = v  # velocity
 
 
 class Derivative(object):
 
-    def __init__(self, dx = 0, dv = 0):
-        self.dx = dx    # velocity
+    def __init__(self, dp = 0.0, dv = 0.0):
+        self.dp = dp    # velocity
         self.dv = dv    # acceleration
 
 
@@ -33,11 +35,11 @@ class Derivative(object):
 def eval(initial, accel, dt, d):
 
     state = State()
-    state.x = initial.x + d.dx * dt
-    state.v = initial.v + d.dv * dt
+    state.p   = initial.p + d.dp * dt
+    state.v   = initial.v + d.dv * dt
 
     output = Derivative()
-    output.dx = state.v
+    output.dp = state.v
     output.dv = accel
 
     return output
@@ -47,29 +49,38 @@ def eval(initial, accel, dt, d):
 def rk4(state, dv, dt):
     ''' Implements Runge-Kutta 4th order numerical integration.'''
 
-    a = eval(state, dv, dt, Derivative())
-    b = eval(state, dv, dt*0.5, a)
-    c = eval(state, dv, dt*0.5, b)
-    d = eval(state, dv, dt, c)
+    a       = eval(state, dv, dt, Derivative())
+    b       = eval(state, dv, dt*0.5, a)
+    c       = eval(state, dv, dt*0.5, b)
+    d       = eval(state, dv, dt, c)
 
-    dxdt = ( a.dx + 2.0 * ( b.dx + c.dx ) + d.dx ) / 6.0
-    dvdt = ( a.dv + 2.0 * ( b.dv + c.dv ) + d.dv ) / 6.0
+    dpdt    = ( a.dp + 2.0 * ( b.dp + c.dp ) + d.dp ) / 6.0
+    dvdt    = ( a.dv + 2.0 * ( b.dv + c.dv ) + d.dv ) / 6.0
 
-    state.x = state.x + dxdt * dt;
+    state.p = state.p + dpdt * dt;
     state.v = state.v + dvdt * dt;
 
 
+class State3D(object):
 
-# initial state
-state = State(position, velocity)
+    def __init__(self, position, velocity):
+        self.vector = [State(p, v) for p, v in zip(position.points, velocity.points)]
+
+
+state = State3D(position, velocity)
+
+
 
 # numerical integration loop
 for x in range( int(duration/timestep) ):
     #
     # could implement a function to vary acceleration here
     #
-    rk4(state, acceleration, timestep)
+    for s_, a_ in zip(state.vector, acceleration.points):
+        rk4(s_, a_, timestep)
 
 
 # print results
-print('Position: %f m, Velocity: %f m/s after %i second(s)' % (state.x, state.v, duration))
+print('X Position: %r m, X Velocity: %r m/s after %i second(s)' % (state.vector[0].p, state.vector[0].v, duration))
+print('Y Position: %r m, Y Velocity: %r m/s after %i second(s)' % (state.vector[1].p, state.vector[1].v, duration))
+print('Z Position: %r m, Z Velocity: %r m/s after %i second(s)' % (state.vector[2].p, state.vector[2].v, duration))
