@@ -55,15 +55,15 @@ def eval(initial, accel, dt, d):
 
 
 def rk4(state, dv, dt):
-    ''' Implements Runge-Kutta 4th order numerical integration.'''
+    ''' Implements Runge-Kutta 4th order numerical integration.  '''
 
-    a       = eval(state, dv, dt, Derivative())
-    b       = eval(state, dv, dt*0.5, a)
-    c       = eval(state, dv, dt*0.5, b)
-    d       = eval(state, dv, dt, c)
+    k1      = eval(state, dv, dt, Derivative())
+    k2      = eval(state, dv, dt*0.5, a)
+    k3      = eval(state, dv, dt*0.5, b)
+    k4      = eval(state, dv, dt, c)
 
-    dpdt    = ( a.dp + 2.0 * ( b.dp + c.dp ) + d.dp ) / 6.0
-    dvdt    = ( a.dv + 2.0 * ( b.dv + c.dv ) + d.dv ) / 6.0
+    dpdt    = ( k1.dp + 2.0 * ( k2.dp + k3.dp ) + k4.dp ) / 6.0
+    dvdt    = ( k1.dv + 2.0 * ( k2.dv + k3.dv ) + k4.dv ) / 6.0
 
     state.p = state.p + dpdt * dt;
     state.v = state.v + dvdt * dt;
