@@ -24,6 +24,14 @@ class State(object):
         self.v  = v  # velocity
 
 
+
+class State3D(object):
+
+    def __init__(self, position, velocity):
+        self.vector = [State(p, v) for p, v in zip(position.points, velocity.points)]
+
+
+
 class Derivative(object):
 
     def __init__(self, dp = 0.0, dv = 0.0):
@@ -61,23 +69,18 @@ def rk4(state, dv, dt):
     state.v = state.v + dvdt * dt;
 
 
-class State3D(object):
-
-    def __init__(self, position, velocity):
-        self.vector = [State(p, v) for p, v in zip(position.points, velocity.points)]
 
 
 state = State3D(position, velocity)
-
-
 
 # numerical integration loop
 for x in range( int(duration/timestep) ):
     #
     # could implement a function to vary acceleration here
     #
-    for s_, a_ in zip(state.vector, acceleration.points):
-        rk4(s_, a_, timestep)
+    for s, a in zip(state.vector, acceleration.points):
+        rk4(s, a, timestep)
+
 
 
 # print results
