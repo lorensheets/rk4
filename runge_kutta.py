@@ -42,11 +42,11 @@ class Derivative(object):
 
 def eval(initial, accel, dt, d):
 
-    state = State()
+    state     = State()
     state.p   = initial.p + d.dp * dt
     state.v   = initial.v + d.dv * dt
 
-    output = Derivative()
+    output    = Derivative()
     output.dp = state.v
     output.dv = accel
 
