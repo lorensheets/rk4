@@ -25,7 +25,7 @@ class State(object):
 
 
 
-class State3D(object):
+class StateVector(object):
 
     def __init__(self, position, velocity):
         self.vector = [State(p, v) for p, v in zip(position.points, velocity.points)]
@@ -70,7 +70,7 @@ def rk4(state, dv, dt):
 
 
 
-state = State3D(position, velocity)
+state = StateVector(position, velocity)
 
 # numerical integration loop
 for x in range( int(duration/timestep) ):
